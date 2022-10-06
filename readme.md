@@ -10,10 +10,10 @@ Information about [epoint.az](https://epoint.az) you can find on the website.
 
 ## Installation
 
-1. Download "Epointaz-payment.zip" ZIP File
+1. Download ZIP File
 2. In the WP-Admin open "Plugins" - "Add New"
 3. Press "Upload Plugin" on the header
-4. Upload "Epointaz-payment.zip" ZIP file to Wordpress
+4. Upload ZIP Archive to Wordpress
 
 ## Epoint adaptation
 
