@@ -2,12 +2,12 @@
 /** 
  * Epoint.az payment method. 
  * @class WC_EPointaz_Adapter
- * @version 1.0.0
+ * @version 1.1.0
  * @package WooCommerce/Classes/Payment
  */
 
- class WC_EPointaz_Adapter {
-    
+class WC_EPointaz_Adapter {
+
     public function __construct($plugin_id, $public_key, $private_key) {
         $this->plugin_id     = $plugin_id;
         $this->public_key    = $public_key;
@@ -18,6 +18,7 @@
         $this->signature     = "";
         $this->return_url    = ""; 
         $this->error_message = "";
+        $this->transaction_id = "";
     }
     
     public function setConfig($values)
@@ -28,13 +29,14 @@
 
     public function execute(){
         $_request = json_decode($this->makeRequest($this->requestUrl, $this->values, $this->signature), true); 
-       
+
         if (@$_request):
             if (@$_request['status'] == "error"):
                 $this->error_message = @$_request['message']; 
                 error_log("Error Epoint message: ".@$_request['message'], 0);
                 return false;
             else: 
+                $this->transaction_id = @$_request['transaction'];
                 $this->return_url = @$_request['redirect_url'];
                 return true;
 
@@ -46,10 +48,17 @@
             return false;
         endif;
     }
-    public function getStatus($_order_id){
-        if (@$_order_id){
+    public function getStatus($_id, $_type = "order"){
+        $_id = trim($_id); 
+        error_log("Checking status by type: ".$_type." ID:".$_id);
+        if (@$_id){
             error_log("CHECKING STATUS");
-            $_status['values'] = base64_encode(json_encode(["public_key" => $this->public_key, "order_id" => $_order_id]));
+            if ($_type == "transaction"):
+                $_status['values'] = base64_encode(json_encode(["public_key" => $this->public_key, "transaction" => $_id]));
+            else: 
+                $_status['values'] = base64_encode(json_encode(["public_key" => $this->public_key, "order_id" => $_id]));
+            endif;
+
             $_status['signature'] = $this->generateSignature($this->private_key, $_status['values']); 
             $_status['response'] = json_decode($this->makeRequest($this->statusUrl, $_status['values'], $_status['signature']), true); 
             return $_status['response'];
@@ -63,7 +72,9 @@
         return $this->return_url;
     }
 
-
+    public function getTransactionID() {
+        return $this->transaction_id;
+    }
 
     private function generateSignature($_private_key, $_values){
         return base64_encode(sha1($_private_key . $_values . $_private_key, 1));
@@ -71,19 +82,19 @@
 
     private function makeRequest($_url = NULL, $_data = NULL, $_signature = NULL) 
     {
-    
+
         if (($_data != NULL) && ($_signature != NULL)):
             $_postfields = http_build_query(array( 'data' => $_data, 'signature' => $_signature));
-            $_ch = curl_init();
-            curl_setopt($_ch, CURLOPT_URL, $_url);
-            curl_setopt($_ch, CURLOPT_POSTFIELDS, $_postfields);
-            curl_setopt($_ch, CURLOPT_RETURNTRANSFER, TRUE);
-            $_response = curl_exec($_ch);
-            return $_response;
-        else:
-            return false;
-        endif;
+        $_ch = curl_init();
+        curl_setopt($_ch, CURLOPT_URL, $_url);
+        curl_setopt($_ch, CURLOPT_POSTFIELDS, $_postfields);
+        curl_setopt($_ch, CURLOPT_RETURNTRANSFER, TRUE);
+        $_response = curl_exec($_ch);
+        return $_response;
+    else:
+        return false;
+    endif;
     
-    }
-    
- }
+}
+
+}
