@@ -7,9 +7,9 @@ Information about [epoint.az](https://epoint.az) you can find on the website.
 ##### Version 1.1
 
 ## NOTE FOR UPDATE FROM 1.0 TO 1.1
-### You need to remove your old Epoint payment plugin for this update. 
-### Before removing previous version, please, copy your public & private key - "WooCommerce" - "Settings" - "Payments" - "Epoint.az Payments". 
-### You will not be able to activate the new version if the old version is activated.
+You need to remove your old Epoint payment plugin for this update. 
+Before removing previous version, please, copy your public & private key - "WooCommerce" - "Settings" - "Payments" - "Epoint.az Payments". 
+You will not be able to activate the new version if the old version is activated.
 
 ## Requirements
 1. Wordpress (Tested on v6.0.2)
