@@ -2,7 +2,7 @@
 /** 
  * Epoint.az payment method. 
  * @class WC_EPointaz_Gateway
- * @version 1.0.0
+ * @version 1.1.0
  * @package WooCommerce/Classes/Payment
  */
 
@@ -11,9 +11,7 @@ class WC_EPointaz_Gateway extends WC_Payment_Gateway {
     private $_adapter;
 
     public function __construct() {
-        /** */
         $this->init_form_fields();
-        /** */
         $this->id                 = EPOINTAZ_PLUGIN_ID;
         $this->title              = $this->get_option( 'title' );
         $this->description        = $this->get_option( 'description' );
@@ -73,44 +71,76 @@ class WC_EPointaz_Gateway extends WC_Payment_Gateway {
             ],        
         ];
     }
-    public function payment_scripts() {
-
-
-    }
-
-
     public function process_payment( $order_id ) {
-      $_order         = new WC_Order($order_id);
-      $_order->update_status('on-hold', __('Awaiting payment', 'woocommerce'));
-
+      $_order = new WC_Order($order_id);
 
       if ( $_order->get_total() > 0 ) {
        if ($this->payment_start($_order) == true): 
+
+        $_order->set_transaction_id($this->_adapter->getTransactionID());
+        $_order->save();      
+        error_log("TRANSACTION_ID: ".$_order->get_transaction_id())  ;
         return array(
             'result'   => 'success',
             'redirect' => ($this->_adapter->getReturnUrl()) ? $this->_adapter->getReturnUrl() : $this->get_return_url( $_order ),
         );            
-    else:
-
     endif;
 
-} 
-
 }
-
-private function payment_start(WC_Order $order) {
-    if ( ($this->get_option('public_key')) ): 
-
-        /** */
-        require_once __DIR__ . '/class_wc_epointaz_adapter.php';
+}
+    public function payment_scripts() {
+            
+    }
 
 
+public function webhook() {
+    require_once __DIR__ . '/class_wc_epointaz_adapter.php';        
+    error_log("WEBHOOK FOUNDED", 0);
+    error_log("INCOMING WEBHOOK ORDER ID: ".(@$_GET['order_id']));
+    if (@$_GET['order_id']):
+        $order = new WC_Order(@$_GET['order_id']);
         $this->_adapter = new WC_EPointaz_Adapter(
             $this->id,
             $this->public_key,
             $this->private_key
         );
 
+        // If you want to check payment status by order ID, COMMENT the next line
+        $_status = $this->_adapter->getStatus($order->get_transaction_id(), "transaction");
+        // If you want to check payment status by order ID, UNCOMMENT the next line
+        // $_status = $this->_adapter->getStatus($order->get_id(), "order");
+
+        error_log("RECEIVED STATUS");
+        error_log("Order status: ".(is_array($_status) ? implode(',',$_status) : $_status), 0);
+        if (($_status != null) && ($_status['status'] == 'success')):
+            $order->add_order_note(__('Payment received: ' . $_status['transaction'], 'woocommerce'));
+        $order->payment_complete();
+        wc_reduce_stock_levels(@$_GET['order_id']);
+    else:
+        $order->update_status('wc-failed', __('Payment cancelled', 'woocommerce'));
+    endif;
+    header('Location: ' . $this->get_return_url($order));
+else:
+    header('Location: /');
+endif;
+
+}
+
+public function thankyou_page() {
+  if ( $this->instructions ) {
+   echo wp_kses_post( wpautop( wptexturize( $this->instructions ) ) );
+}
+}
+
+private function payment_start(WC_Order $order) {
+    if ( ($this->get_option('public_key')) ): 
+
+        require_once __DIR__ . '/class_wc_epointaz_adapter.php';
+        $this->_adapter = new WC_EPointaz_Adapter(
+            $this->id,
+            $this->public_key,
+            $this->private_key
+        );
         $this->_adapter->setConfig(
             array(
                 "public_key" => $this->get_option('public_key'),
@@ -130,40 +160,5 @@ private function payment_start(WC_Order $order) {
 
 }
 
-public function webhook() {
-    require_once __DIR__ . '/class_wc_epointaz_adapter.php';        
-    error_log("WEBHOOK FOUNDED", 0);
-    error_log("INCOMING WEBHOOK ORDER ID: ".(@$_GET['order_id']));
-    if (@$_GET['order_id']):
-        $order = new WC_Order(@$_GET['order_id']);
-        error_log("OPERATING WITH ORDER ID");
-        $this->_adapter = new WC_EPointaz_Adapter(
-            $this->id,
-            $this->public_key,
-            $this->private_key
-        );
-        $_status = $this->_adapter->getStatus(@$_GET['order_id']);
-        error_log("RECEIVED STATUS");
-        error_log("Order status: ".(is_array($_status) ? implode(',',$_status) : $_status), 0);
-        if (($_status != null) && ($_status['status'] == 'success')):
-            $order->add_order_note(__('Payment received: ' . $_status['transaction'], 'woocommerce'));
-        $order->payment_complete();
-        wc_reduce_stock_levels(@$_GET['order_id']);
-        error_log("Order completed ", 0);
-    else:
-        $order->update_status('wc-failed', __('Payment cancelled', 'woocommerce'));
-    endif;
-    header('Location: ' . $this->get_return_url($order));
-else:
-    header('Location: /');
-endif;
-
-}
-
-public function thankyou_page() {
-  if ( $this->instructions ) {
-   echo wp_kses_post( wpautop( wptexturize( $this->instructions ) ) );
-}
-}
 
 }

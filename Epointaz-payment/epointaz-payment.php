@@ -1,11 +1,11 @@
 <?php
 /**
  * Plugin Name: EPOINT.AZ Payment Gateway
- * Plugin URI: https://epoint.az
+ * Plugin URI: https://github.com/thr3w/Epoint.az-WooCoomerce-Payment
  * Author: EPoint.az
  * Author URI: https://epoint.az
  * Description: Payments throught Epoint.az
- * Version: 1.0.0
+ * Version: 1.1.0
  * License: GPL2
  * License URL: http://www.gnu.org/licenses/gpl-2.0.txt
  * text-domain: epointaz-payment-woo
@@ -18,7 +18,7 @@
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
-define('EPOINTAZ_VERSION', '1.0.0');
+define('EPOINTAZ_VERSION', '1.1.0');
 define('EPOINTAZ_PLUGIN_ID', 'epointaz_payment');
 
 add_action( 'plugins_loaded', 'epointaz_init');
