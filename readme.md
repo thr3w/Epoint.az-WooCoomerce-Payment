@@ -4,22 +4,24 @@
 
 
 Information about [epoint.az](https://epoint.az) you can find on the website. 
-##### Version 1.1
+##### Version 1.2 
 
-## NOTE FOR UPDATE FROM 1.0 TO 1.1
+## NOTE FOR UPDATE FROM 1.1 TO 1.2
+##### 1.2 Added language support
 ##### You need to remove your old Epoint payment plugin for this update. 
 ##### Before removing previous version, please, copy your public & private key - "WooCommerce" - "Settings" - "Payments" - "Epoint.az Payments". 
 ##### You will not be able to activate the new version if the old version is activated.
 
 ## Requirements
-1. Wordpress (Tested on v6.0.2)
+1. Wordpress (Tested on v6.5)
 2. WooCommerce installed (Tested on v7.0.0)
+* To use plugin in WooCommerce versions that more than v8 - Go to Pages - Checkout - Classic Mode
 
 ## Installation
-1. Download "Epointaz-payment_1_1.zip" ZIP File
+1. Download "Epointaz-payment_1_2.zip" ZIP File
 2. In the WP-Admin open "Plugins" - "Add New"
 3. Press "Upload Plugin" on the header
-4. Upload "Epointaz-payment_1_1.zip" ZIP file to Wordpress
+4. Upload "Epointaz-payment_1_2.zip" ZIP file to Wordpress
 
 ## Epoint adaptation
 1. After installation open "WooCommerce" - "Settings" - "Payments"
