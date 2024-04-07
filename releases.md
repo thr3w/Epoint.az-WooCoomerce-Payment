@@ -1,4 +1,7 @@
 # Release Notes
+
+## 1.2 
+1. Added - Language support
 ## 1.1
 1. Fixed - Checking the payment status for a transaction
 2. Fixed - The order status did not change to "Pending" after "Checkout" button pressed.

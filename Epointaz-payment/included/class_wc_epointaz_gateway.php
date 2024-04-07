@@ -2,7 +2,7 @@
 /** 
  * Epoint.az payment method. 
  * @class WC_EPointaz_Gateway
- * @version 1.1.0
+ * @version 1.2.0
  * @package WooCommerce/Classes/Payment
  */
 
@@ -68,7 +68,18 @@ class WC_EPointaz_Gateway extends WC_Payment_Gateway {
                 'type'        => 'text',
                 'description' => 'Your private key in EPoint.az',
                 'default'     => '',
-            ],        
+            ],  
+        'language' => [
+            'title'       => 'Lanuage',
+            'type'        => 'select',
+            'description' => 'Select an language',
+            'options'     => [
+                'en' => 'English',
+                'az' => 'Azerbaijani',
+                'ru' => 'Russian',            
+            ],
+            'default'     => 'en', 
+        ],                  
         ];
     }
     public function process_payment( $order_id ) {
@@ -146,7 +157,7 @@ private function payment_start(WC_Order $order) {
                 "public_key" => $this->get_option('public_key'),
                 "amount" => $order->get_total(),
                 "currency" => $order->get_data()["currency"],
-                "language" => "az", 
+                "language" => $this->get_option('language'), 
                 "order_id" => $order->get_id(),
                 "description" => "Order ID: ".$order->get_id(),
                 "success_redirect_url" => get_home_url() . "?wc-api=".$this->id."&order_id=".$order->get_id(),
